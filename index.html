@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Undiscord Package Util</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="zip.min.js"></script>
+</head>
+
+<body>
+    <h1>Undiscord Package Util</h1>
+
+    <p>A simple tool to parse through your archive and export only the selected channels / groups / private messages. May be useful for people who want to make data deletion requests to Discord's support team.</p>
+
+    <p><i><b>Nothing is sent to anyone</b>, it's all in YOUR browser, your data stays on your computer and your computer
+            only</i>.</p>
+    <p><i>Most 'Unknown Channels' are from servers you're not on anymore</i>.</p>
+
+
+    <label for="package-file" class="file-input">
+        <input type="file" name="package" id="package-file" accept=".zip">
+        <span>Load Archive</span>
+    </label>
+
+    <hr>
+
+    <section class="package-channels hidden">
+        <section class="tips">
+            <input type="checkbox" id="tip-none" disabled>
+            <label for="">No channel selected</label>
+            <input type="checkbox" checked="false" class="partial" id="tip-partial" disabled>
+            <label for="">Some channels selected</label>
+            <input type="checkbox" checked id="tip-full" disabled>
+            <label for="">All channels selected</label>
+        </section>
+
+        <details class="root">
+            <summary>Servers</summary>
+
+            <ul class="channels"></ul>
+        </details>
+
+        <details class="root">
+            <summary>Group Chats</summary>
+            <ul class="group-chats"></ul>
+        </details>
+
+        <details class="root">
+            <summary>Direct Messages</summary>
+            <ul class="direct-messages"></ul>
+        </details>
+
+        <hr>
+    </section>
+
+    <section class="export hidden">
+        <input type="checkbox" name="export-channels" id="export-channels">
+        <label for="export-channels">Only export channels</label>
+        <button id="export-button">Export</button>
+        <button id="download-button">Download</button>
+    </section>
+
+    <textarea readonly rows="32" class="hidden"></textarea>
+
+    <script type="module" src="index.js">
+
+    </script>
+</body>
+
+</html>
