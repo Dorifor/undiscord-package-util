@@ -145,7 +145,7 @@ function addChannelToDelete(channelId) {
     channelsToDelete.add(channelId);
 
     _get('section.export').classList.remove('hidden');
-    _get('section.export + textarea').classList.add('hidden');
+    _get('section.export + textarea').classList.remove('hidden');
 }
 
 /**
@@ -154,11 +154,10 @@ function addChannelToDelete(channelId) {
 function removeChannelToDelete(channelId) {
     channelsToDelete.delete(channelId);
 
-    if (channelsToDelete.length === 0)
+    if (channelsToDelete.length === 0) {
         _get('section.export').classList.add('hidden');
-
-
-    _get('section.export + textarea').classList.add('hidden');
+        _get('section.export + textarea').classList.remove('hidden');
+    }
 }
 
 /**
@@ -265,7 +264,6 @@ async function exportChannelsAndMessages() {
 
     if (onlyExportChannels) {
         _get('textarea').textContent = channels.map(channel => channel.slice(1)).join(', ');
-        _get('section.export + textarea').classList.remove('hidden');
         return;
     }
 
@@ -273,8 +271,6 @@ async function exportChannelsAndMessages() {
         _get('textarea').textContent += `${channel.slice(1)}:\n`;
         _get('textarea').textContent += (await getChannelMessagesIds(channel)).join(', ') + '\n\n';
     }
-
-    _get('section.export + textarea').classList.remove('hidden');
 }
 
 function downloadExport() {

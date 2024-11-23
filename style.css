@@ -17,7 +17,7 @@ input[type="checkbox"] {
     display: none;
 }
 
-input[type="checkbox"] + label::before {
+input[type="checkbox"]+label::before {
     display: inline-block;
     width: .8em;
     height: .8em;
@@ -32,12 +32,12 @@ input[type="checkbox"] + label::before {
     color: transparent;
 }
 
-input[type="checkbox"]:checked + label::before {
+input[type="checkbox"]:checked+label::before {
     background: #a6da95;
     border: 2px solid #82ab75;
 }
 
-input[type="checkbox"].partial + label::before {
+input[type="checkbox"].partial+label::before {
     background: none;
     border: 2px solid #82ab75;
     color: #a6da95;
@@ -104,7 +104,7 @@ summary:after {
     transition: all .2s;
 }
 
-details[open] > summary:after {
+details[open]>summary:after {
     transform: rotate(0deg);
 }
 
@@ -116,7 +116,7 @@ details.root {
     border: 1px solid #181926;
 }
 
-details.root > summary {
+details.root>summary {
     font-size: 1.2rem;
 }
 
@@ -139,8 +139,9 @@ label.unknown {
     display: inline-block;
 }
 
-li > label:hover,
-summary label:hover {
+li>label:hover,
+summary label:hover,
+.export>label:hover {
     cursor: pointer;
 }
 
@@ -154,6 +155,7 @@ section.export {
     justify-content: center;
     align-items: center;
     gap: 1rem;
+    margin-bottom: 1rem;
 }
 
 button {
@@ -183,10 +185,10 @@ textarea {
     border: 1px solid #6e738d;
     border-radius: 8px;
     min-height: 1vh;
-    margin: 1rem;
     color: #cad3f5;
 }
 
-.hidden, section.hidden {
+.hidden,
+section.hidden {
     display: none;
 }
