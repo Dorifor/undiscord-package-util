@@ -5,6 +5,12 @@ body {
     margin: 0 20%;
 }
 
+@media only screen and (max-width: 768px) {
+    body {
+        margin: 1rem;
+    }
+}
+
 ul {
     list-style-type: none;
 }
@@ -178,7 +184,6 @@ button:hover {
 
 textarea {
     resize: none;
-    padding: .5rem;
     display: block;
     width: 100%;
     background: #181926;
@@ -187,6 +192,8 @@ textarea {
     min-height: 1vh;
     color: #cad3f5;
     margin: 1rem 0;
+    padding: .3rem;
+    box-sizing: border-box;
 }
 
 .hidden,
