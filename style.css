@@ -186,6 +186,7 @@ textarea {
     border-radius: 8px;
     min-height: 1vh;
     color: #cad3f5;
+    margin: 1rem 0;
 }
 
 .hidden,
