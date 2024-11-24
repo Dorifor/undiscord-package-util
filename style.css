@@ -211,3 +211,14 @@ section.hidden {
         gap: 1rem;
     }
 }
+
+.github {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    flex-wrap: wrap;
+}
+
+.github > span {
+    display: flex;
+}
