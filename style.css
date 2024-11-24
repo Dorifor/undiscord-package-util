@@ -5,14 +5,9 @@ body {
     margin: 0 20%;
 }
 
-@media only screen and (max-width: 768px) {
-    body {
-        margin: 1rem;
-    }
-}
-
 ul {
     list-style-type: none;
+    padding-left: 1em;
 }
 
 .select-all {
@@ -123,7 +118,11 @@ details.root {
 }
 
 details.root>summary {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
+}
+
+details:not(.root) > ul {
+    border-left: 2px solid #363a4f;
 }
 
 p.valid {
@@ -199,4 +198,16 @@ textarea {
 .hidden,
 section.hidden {
     display: none;
+}
+
+@media only screen and (max-width: 768px) {
+    body {
+        margin: 1rem;
+    }
+
+    .tips {
+        flex-direction: column;
+        align-items: baseline;
+        gap: 1rem;
+    }
 }
