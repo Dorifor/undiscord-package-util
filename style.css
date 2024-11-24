@@ -222,3 +222,13 @@ section.hidden {
 .github > span {
     display: flex;
 }
+
+.card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: #363a4f;
+    border-radius: 8px;
+    padding: 0 1rem;
+    margin: 1rem 0;
+}
