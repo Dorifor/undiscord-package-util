@@ -28,7 +28,7 @@ input[type="checkbox"]+label::before {
     height: .8em;
     border: 2px solid #cad3f5;
     border-radius: 4px;
-    vertical-align: bottom;
+    vertical-align: text-bottom;
     margin-right: .5em;
     transition: all .2s;
     content: "\26AC";
@@ -106,7 +106,7 @@ summary:after {
     margin-left: .5rem;
     display: inline-block;
     transform: rotate(-90deg);
-    transition: all .2s;
+    transition: transform .2s;
 }
 
 details[open]>summary:after {
@@ -125,8 +125,14 @@ details.root>summary {
     font-size: 1.1rem;
 }
 
-details:not(.root) > ul {
+details.root>ul {
+    padding-left: 0;
+}
+
+details:not(.root)>ul {
     border-left: 2px solid #363a4f;
+    margin-left: .5rem;
+    margin-top: .2rem;
 }
 
 p.valid {
@@ -204,18 +210,6 @@ section.hidden {
     display: none;
 }
 
-@media only screen and (max-width: 768px) {
-    body {
-        margin: 1rem;
-    }
-
-    .tips {
-        flex-direction: column;
-        align-items: baseline;
-        gap: 1rem;
-    }
-}
-
 .github {
     display: flex;
     align-items: center;
@@ -223,7 +217,7 @@ section.hidden {
     flex-wrap: wrap;
 }
 
-.github > span {
+.github>span {
     display: flex;
 }
 
@@ -235,4 +229,201 @@ section.hidden {
     border-radius: 8px;
     padding: 0 1rem;
     margin: 1rem 0;
+}
+
+ul:not(.channels)>li {
+    padding: .2rem;
+    margin: 0;
+    border-radius: 4px;
+    transition: all .2s;
+}
+
+details li {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+ul:not(.channels)>li:hover .actions {
+    opacity: 1;
+}
+
+.actions {
+    opacity: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all .2s;
+    border-radius: 4px;
+    padding: .1rem;
+}
+
+.actions:hover {
+    background: #363a4f;
+    cursor: pointer;
+}
+
+.actions>span {
+    max-width: 0;
+    overflow: hidden;
+    transition: all .5s .2s;
+}
+
+.actions:hover>span {
+    max-width: 20rem;
+    padding-left: .5rem;
+    padding-right: .5rem;
+}
+
+svg {
+    pointer-events: none;
+}
+
+dialog {
+    position: fixed;
+    transition: all .2s;
+}
+
+dialog.messages-popup {
+    background: #24273a;
+    color: #cad3f5;
+    border: 1px solid #363a57;
+    border-radius: 8px;
+    padding-bottom: 0;
+    word-wrap: break-word;
+
+    /*  To Change Later    */
+    width: 60vw;
+    max-width: 60vw;
+}
+
+dialog.messages-popup::backdrop {
+    background: #181926;
+    opacity: .8;
+}
+
+dialog.messages-popup h3 {
+    margin-top: 0;
+    margin-right: 3rem;
+}
+
+dialog.messages-popup ul {
+    padding: 0;
+    line-height: 1.5;
+    max-height: 50vh;
+    overflow-y: scroll;
+    background: #181926;
+    border-radius: 4px;
+}
+
+dialog.messages-popup .close {
+    position: absolute;
+    top: .5rem;
+    right: .5rem;
+    border: none;
+}
+
+dialog.messages-popup .close:hover {
+    color: #ed8796;
+}
+
+
+dialog.messages-popup>p {
+    color: #939ab7;
+    text-align: center;
+}
+
+dialog:focus-visible {
+    outline: none;
+}
+
+dialog.messages-popup li a {
+    margin-left: .5rem;
+}
+
+dialog.messages-popup li .date+a,
+dialog.messages-popup br+a {
+    margin-left: 0;
+}
+
+dialog.messages-popup br {
+    display: none;
+}
+
+a {
+    color: #a6da95;
+    transition: color .2s;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #719865;
+}
+
+a:visited {
+    color: #a6da95;
+}
+
+span.date {
+    /*     font-style: italic; */
+    color: #939ab7;
+    font-size: .8rem;
+    font-family: monospace;
+    letter-spacing: -0.1em;
+    margin-right: .5rem;
+}
+
+.error {
+    color: #ed8796 !important;
+}
+
+.mobile {
+    display: none;
+}
+
+@media only screen and (max-width: 768px) {
+    body {
+        margin: 1rem;
+    }
+
+    .tips {
+        flex-direction: column;
+        align-items: baseline;
+        gap: 1rem;
+    }
+
+    dialog.messages-popup {
+        box-sizing: border-box;
+        max-width: 100vw;
+        width: 100vw;
+    }
+
+    dialog.messages-popup ul {
+        max-height: 80svh;
+    }
+
+    dialog.messages-popup br {
+        display: block;
+    }
+
+    .actions {
+        display: none;
+    }
+
+    ul:not(.channels)>li {
+        padding: .5rem .2rem;
+    }
+
+    ul:not(.channels)>li:active,
+    ul:not(.channels)>li:hover {
+        background: #363a4f;
+    }
+
+    .mobile { 
+        display: flex;
+    }
+
+    .desktop {
+        display: none;
+    }
 }

@@ -13,7 +13,7 @@
  * @property { Array.<Channel> } channels - Channels inside this group
  */
 
-import { _new, _get, _getAll } from './utils.js';
+import { _new, _get, _getAll, lockBodyScroll } from './utils.js';
 
 const fileInput = _get('#package-file');
 const channelsContainer = _get('.channels');
@@ -21,6 +21,17 @@ const directMessagesContainer = _get('.direct-messages');
 const groupChatsContainer = _get('.group-chats');
 
 _get('#export-button').addEventListener('click', exportChannelsAndMessages);
+
+_get('.close').addEventListener('click', () => _get('dialog.messages-popup').close());
+_get('dialog.messages-popup').addEventListener('close', closeModal);
+
+addEventListener('popstate', event => {
+    const modal = _get('dialog.messages-popup');
+    if (modal.open) {
+        event.preventDefault();
+        modal.close();
+    }
+})
 
 fileInput.addEventListener('change', onFilePicked);
 
@@ -54,10 +65,12 @@ async function onFilePicked() {
  */
 async function getChannelsListFromArchive() {
     const file = fileInput.files[0];
-    archiveRoot = await (new zip.ZipReader(new zip.BlobReader(file))).getEntries();
+    const reader = new zip.ZipReader(new zip.BlobReader(file));
+    archiveRoot = await reader.getEntries();
+    reader.close();
     const channelsListFile = archiveRoot.find(file => file.filename === 'messages/index.json');
     let channelsList = JSON.parse(await channelsListFile.getData(new zip.TextWriter()));
-    return Object.entries(channelsList).map(channel => { return { id: 'c' + channel[0], name: channel[1] } })
+    return Object.entries(channelsList).map(channel => { return { id: 'c' + channel[0], name: channel[1] } });
 }
 
 /**
@@ -68,13 +81,13 @@ async function getChannelsListFromArchive() {
 function showFilePickerFeedback(isSuccess) {
     const fileInputLabel = _get('label.file-input');
     if (!isSuccess) {
-        fileInputLabel.classList.remove('loaded')
+        fileInputLabel.classList.remove('loaded');
         fileInputLabel.classList.add('error');
         fileInputLabel.querySelector('span').textContent = "Loading Error";
         return;
     }
 
-    fileInputLabel.classList.remove('error')
+    fileInputLabel.classList.remove('error');
     fileInputLabel.classList.add('loaded');
     fileInputLabel.querySelector('span').textContent = "Archive Loaded";
 }
@@ -211,7 +224,20 @@ function updateGroupCheckbox(group) {
  * @param { Group } group
  */
 function addChannelCheckbox(channel, parent, group = null) {
-    const newListItem = _new('li', { parent: parent });
+    const newListItem = _new('li', {
+        parent: parent, events: {
+            'contextmenu': event => {
+                event.preventDefault();
+                console.log(event);
+                let target = event.target;
+
+                if (target.nodeName === "LABEL")
+                    target = event.target.parentElement;
+
+                target.querySelector('.actions').click();
+            }
+        }
+    });
 
     _new(
         'input',
@@ -239,7 +265,9 @@ function addChannelCheckbox(channel, parent, group = null) {
     if (group)
         channelName = channel.name.replace(`in ${group.name}`, '').trim();
 
-    const isUnknown = channelName == "Unknown channel";
+    channelName = channelName.replace('Direct Message with ', '');
+
+    const isUnknown = ["Unknown channel", "Unknown Participant"].includes(channelName);
 
     _new(
         'label',
@@ -250,6 +278,10 @@ function addChannelCheckbox(channel, parent, group = null) {
         },
         channelName
     );
+
+    const readMessagesButton = _new('span.actions', { parent: newListItem, attr: { 'data-channel-id': channel.id }, events: { click: openMessageModal } });
+    _new('span', { parent: readMessagesButton }, 'Messages');
+    readMessagesButton.insertAdjacentHTML('afterbegin', '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-square-more"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 10h.01"/><path d="M12 10h.01"/><path d="M16 10h.01"/></svg>');
 }
 
 /**
@@ -304,4 +336,104 @@ async function getChannelMessagesIds(channel) {
     const channelMessagesFile = archiveRoot.find(file => file.filename === `messages/${channel}/messages.json`);
     let messagesList = JSON.parse(await channelMessagesFile.getData(new zip.TextWriter()));
     return messagesList.map(message => message['ID'].toString());
+}
+
+/**
+ * Load all messages for this channel 
+ * @param {Channel} channel 
+ * @returns { Array.<{ ID: int, Timestamp: string, Contents: string, Attachments: string }> }
+ */
+async function getChannelMessages(channel) {
+    const channelMessagesFile = archiveRoot.find(file => file.filename === `messages/${channel}/messages.json`);
+    const channelMessagesJSON = await channelMessagesFile.getData(new zip.TextWriter(), {
+        onprogress: (progress, total) => {
+            console.log(`${progress}/${total} (${progress / total * 100}/100)`);
+        }
+    }).catch(err => console.trace('channelMessagesJSON', err));
+    const parsedChannelMessages = JSON.parse(channelMessagesJSON);
+    return parsedChannelMessages;
+}
+
+function openMessageModal(event) {
+    history.pushState({ action: 'open' }, "", '#modal');
+    const loadMessage = _get('dialog.messages-popup > p');
+    loadMessage.classList.remove('hidden');
+    loadMessage.classList.remove('error');
+    loadMessage.textContent = "Loading Messages...";
+
+    let target = event.target;
+
+    if (!target.classList.contains('actions'))
+        target = target.parentElement;
+
+    _get('dialog.messages-popup').showModal();
+    lockBodyScroll();
+
+    const channelName = _get(`[for="${target.dataset.channelId}"]`).textContent;
+    _get('dialog.messages-popup > h3').textContent = `${channelName}`;
+    loadMessagesFromChannel(target.dataset.channelId);
+}
+
+function loadMessagesFromChannel(channel) {
+    getChannelMessages(channel)
+        .then(messages => {
+            populateMessagesList(messages);
+        })
+        .catch(async error => {
+            console.log(archiveRoot);
+            console.error(error);
+            console.error('failed message fetch, no more tries.');
+            const loadMessage = _get('dialog.messages-popup > p');
+            loadMessage.classList.remove('hidden');
+            loadMessage.classList.add('error');
+            loadMessage.textContent = "Cannot load messages, try again.";
+            console.log(archiveRoot);
+        });
+}
+
+/**
+ * 
+ * @param { Array.<{ ID: int, Timestamp: string, Contents: string, Attachments: string }> } messages 
+ */
+function populateMessagesList(messages) {
+    _get('dialog.messages-popup > h3').textContent += ` (${messages.length})`;
+    _get('dialog.messages-popup > p').classList.add('hidden');
+    const messagesList = _new('ul', { parent: 'dialog.messages-popup' });
+    messagesList.scrollTo(0, 0);
+
+    messages.forEach(message => {
+        if (message.Contents === "" && message.Attachments === "") return;
+
+        const newListItem = _new('li', { parent: messagesList });
+
+        _new('span.date', { parent: newListItem }, message.Timestamp.slice(0, -3));
+        _new('br', { parent: newListItem });
+
+        let attachments = [];
+        if (message.Attachments != "")
+            attachments = message.Attachments.split(' ');
+
+        if (message.Contents != "")
+            _new('span', { parent: newListItem }, message.Contents);
+
+        attachments.forEach(attachment => {
+            _new('a', { parent: newListItem, attr: { href: attachment, target: '_blank' } }, getStrippedFileName(attachment))
+        });
+
+    });
+}
+
+function getStrippedFileName(url) {
+    const filename = new URL(url).pathname.split('/').at(-1);
+    if (filename.length <= 20)
+        return `[${filename}]`;
+
+    return `[${filename.slice(0, 8)}...${filename.slice(-5)}]`;
+}
+
+function closeModal() {
+    history.replaceState(null, null, ' ');
+    lockBodyScroll(false);
+    _get('dialog.messages-popup > p').classList.remove('hidden');
+    _get('dialog.messages-popup > ul')?.remove();
 }

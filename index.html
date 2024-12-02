@@ -25,8 +25,23 @@
     </div>
 
     <div class="card">
-        <span>⛓️‍💥</span>
+        <span>🛜</span>
         <p>You can disable your <b>internet</b>. It still works !</p>
+    </div>
+
+    <div class="card desktop">
+        <span>📖</span>
+        <p>You can read your messages to get more context.</p>
+    </div>
+
+    <div class="card mobile">
+        <span>📖</span>
+        <p>You can <b>press long on a channel</b> to read your messages and get more context. <br><i>It may not work on some devices, refresh the page or give up</i></p>
+    </div>
+
+    <div class="card">
+        <span>🤨</span>
+        <p>Most 'Unknown Channels' are from servers you're not on anymore. 'None' are probably deleted.</p>
     </div>
 
     <div class="card">
@@ -38,14 +53,6 @@
         </p>
     </div>
 
-    <div class="card">
-        <span>🤨</span>
-        <p>Most 'Unknown Channels' are from servers you're not on anymore.</p>
-    </div>
-
-
-
-
     <label for="package-file" class="file-input">
         <input type="file" name="package" id="package-file" accept=".zip">
         <span>Load Archive</span>
@@ -56,11 +63,11 @@
     <section class="package-channels hidden">
         <section class="tips">
             <input type="checkbox" id="tip-none" disabled>
-            <label for="">No channel selected</label>
+            <label>No channel selected</label>
             <input type="checkbox" checked="false" class="partial" id="tip-partial" disabled>
-            <label for="">Some channels selected</label>
+            <label>Some channels selected</label>
             <input type="checkbox" checked id="tip-full" disabled>
-            <label for="">All channels selected</label>
+            <label>All channels selected</label>
         </section>
 
         <details class="root">
@@ -91,8 +98,20 @@
 
     <textarea readonly rows="32" class="hidden"></textarea>
 
-    <script type="module" src="index.js">
+    <dialog class="messages-popup">
+        <h3>__channelName__ messages (__length__)</h3>
+        <p>Loading Messages ...</p>
+        <button class="close">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="lucide lucide-x">
+                <path d="M18 6 6 18" />
+                <path d="m6 6 12 12" />
+            </svg>
+        </button>
+    </dialog>
 
+    <script type="module" src="index.js">
     </script>
 </body>
 

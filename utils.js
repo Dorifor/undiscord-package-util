@@ -48,10 +48,15 @@ export function _new(tagString, options = defaultOptions, text = null) {
 
     element.textContent = text;
 
-    if (options.parent && options.parentPosition)
-        options.parent.insertAdjacentElement(options.parentPosition, element);
-    else if (options.parent)
-        options.parent.appendChild(element);
+    if (options.parent) {
+        if (typeof(options.parent) == "string")
+            options.parent = _get(options.parent);
+
+        if (options.parentPosition)
+            options.parent.insertAdjacentElement(options.parentPosition, element);
+        else
+            options.parent.appendChild(element);
+    }
 
     return element;
 }
@@ -91,4 +96,45 @@ export function _get(querySelector) {
  */
 export function _getAll(querySelector) {
     return document.querySelectorAll(querySelector);
+}
+
+/**
+ * Lock or unlock the body scroll.
+ *
+ * @param {boolean} lock Whether to lock or unlock the body scroll. Default = true.
+ */
+export function lockBodyScroll(lock = true) {
+	const { documentElement, body } = document;
+
+	// RTL <body> scrollbar
+	const documentLeft = documentElement.getBoundingClientRect().left;
+	const scrollbarX   = Math.round(documentLeft) + documentElement.scrollLeft;
+	const paddingProp  = scrollbarX ? 'paddingLeft' : 'paddingRight';
+
+	if (lock) {
+		body.style[paddingProp] = `${window.innerWidth - documentElement.clientWidth}px`;
+		body.style.top          = `-${window.scrollY}px`;
+		body.style.left         = `-${window.scrollX}px`;
+		body.style.right        = 0;
+		body.style.position     = 'fixed';
+
+		body.classList.add('scroll-locked');
+	} else {
+		if ( ! body.classList.contains('scroll-locked') ) {
+			return;
+		}
+
+		const currentScrollY = parseInt(body.style.top || '0') * -1;
+		const currentScrollX = parseInt(body.style.left || '0') * -1;
+
+		body.style[paddingProp] = '';
+		body.style.position     = '';
+		body.style.top          = '';
+		body.style.left         = '';
+		body.style.right        = '';
+
+		body.classList.remove('scroll-locked');
+
+		window.scrollTo({ left: currentScrollX, top: currentScrollY, behavior: 'instant' });
+	}
 }
