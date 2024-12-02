@@ -231,6 +231,11 @@ section.hidden {
     margin: 1rem 0;
 }
 
+.card > span {
+    min-width: 22px;
+    width: 22px;
+}
+
 ul:not(.channels)>li {
     padding: .2rem;
     margin: 0;
