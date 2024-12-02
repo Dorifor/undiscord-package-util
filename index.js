@@ -288,26 +288,26 @@ function addChannelCheckbox(channel, parent, group = null) {
  * Export channel IDs and Message IDs formatted as needed
  */
 async function exportChannelsAndMessages() {
-    const onlyExportChannels = _get('#export-channels').checked;
+    // const onlyExportChannels = _get('#export-channels').checked;
     const channels = Array.from(channelsToDelete);
 
     _get('textarea').textContent = '';
     _get('#download-button').addEventListener('click', downloadExport);
 
-    if (onlyExportChannels) {
-        _get('textarea').textContent = channels.map(channel => channel.slice(1)).join(', ');
-        return;
-    }
+    // if (onlyExportChannels) {
+    //     _get('textarea').textContent = channels.map(channel => channel.slice(1)).join(', ');
+    //     return;
+    // }
 
     for (let channel of channels) {
-        _get('textarea').textContent += `${channel.slice(1)}:\n`;
-        _get('textarea').textContent += (await getChannelMessagesIds(channel)).join(', ') + '\n\n';
+        for (let message of (await getChannelMessagesIds(channel)))
+            _get('textarea').textContent += `${channel.slice(1)},${message}\n`;
     }
 }
 
 function downloadExport() {
-    const textFile = new File([_get('textarea').textContent], 'undiscord.txt', {
-        type: 'text/plain'
+    const textFile = new File([_get('textarea').textContent], 'undiscord.csv', {
+        type: 'text/csv'
     });
 
     const url = URL.createObjectURL(textFile)
