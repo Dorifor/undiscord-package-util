@@ -2,7 +2,7 @@ body {
     background: #24273a;
     color: #cad3f5;
     font-family: 'Verdana';
-    margin: 0 20%;
+    margin: 0 30%;
 }
 
 h1 {
@@ -31,10 +31,7 @@ input[type="checkbox"]+label::before {
     vertical-align: text-bottom;
     margin-right: .5em;
     transition: all .2s;
-    content: "\26AC";
-    line-height: .5;
-    text-align: center;
-    color: transparent;
+    content: "";
 }
 
 input[type="checkbox"]:checked+label::before {
@@ -42,10 +39,12 @@ input[type="checkbox"]:checked+label::before {
     border: 2px solid #82ab75;
 }
 
-input[type="checkbox"].partial+label::before {
-    background: none;
+input[type="checkbox"]:indeterminate+label::before,
+input[type="checkbox"][indeterminate]+label::before {
     border: 2px solid #82ab75;
-    color: #a6da95;
+    background-size: .1rem;
+    background-repeat: no-repeat;
+    background: radial-gradient(#a6da95 0, #a6da95 20%, transparent 20%);
 }
 
 label.file-input {
@@ -109,6 +108,10 @@ summary:after {
     transition: transform .2s;
 }
 
+summary>label {
+    font-size: 1rem;
+}
+
 details[open]>summary:after {
     transform: rotate(0deg);
 }
@@ -117,7 +120,7 @@ details.root {
     background: #181926;
     margin: 1rem 0;
     padding: .5rem;
-    border-radius: 4px;
+    border-radius: 8px;
     border: 1px solid #181926;
 }
 
@@ -156,7 +159,7 @@ label.unknown {
 
 li>label:hover,
 summary label:hover,
-.export>label:hover {
+.actions>label:hover {
     cursor: pointer;
 }
 
@@ -165,7 +168,7 @@ hr {
     margin: 2rem;
 }
 
-section.export {
+section.export .actions {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -186,7 +189,12 @@ button {
     transition: all .2s;
 }
 
-button:hover {
+button:disabled {
+    color: #979eb8;
+    border: 1px solid #979eb8;
+}
+
+button:not(:disabled):hover {
     cursor: pointer;
     background: #363a4f;
 }
@@ -196,7 +204,8 @@ textarea {
     display: block;
     width: 100%;
     background: #181926;
-    border: 1px solid #6e738d;
+    /* border: 1px solid #6e738d; */
+    border: none;
     border-radius: 8px;
     min-height: 1vh;
     color: #cad3f5;
@@ -231,15 +240,18 @@ section.hidden {
     margin: 1rem 0;
 }
 
-.card > span {
+.card>span {
     min-width: 22px;
     width: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 ul:not(.channels)>li {
     padding: .2rem;
     margin: 0;
-    border-radius: 4px;
+    border-radius: 8px;
     transition: all .2s;
 }
 
@@ -249,32 +261,32 @@ details li {
     align-items: center;
 }
 
-ul:not(.channels)>li:hover .actions {
+ul:not(.channels)>li:hover span.actions {
     opacity: 1;
 }
 
-.actions {
+span.actions {
     opacity: 0;
     display: flex;
     justify-content: center;
     align-items: center;
     transition: all .2s;
-    border-radius: 4px;
+    border-radius: 8px;
     padding: .1rem;
 }
 
-.actions:hover {
+span.actions:hover {
     background: #363a4f;
     cursor: pointer;
 }
 
-.actions>span {
+span.actions>span {
     max-width: 0;
     overflow: hidden;
     transition: all .5s .2s;
 }
 
-.actions:hover>span {
+span.actions:hover>span {
     max-width: 20rem;
     padding-left: .5rem;
     padding-right: .5rem;
@@ -318,7 +330,7 @@ dialog.messages-popup ul {
     max-height: 50vh;
     overflow-y: scroll;
     background: #181926;
-    border-radius: 4px;
+    border-radius: 8px;
 }
 
 dialog.messages-popup .close {
@@ -386,7 +398,40 @@ span.date {
     display: none;
 }
 
-@media only screen and (max-width: 768px) {
+progress {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    accent-color: #a6da95;
+    background-color: #181926;
+    border: none;
+    border-radius: 8px;
+}
+
+progress::-moz-progress-bar {
+    background-color: #a6da95 !important;
+    border-radius: 8px !important;
+}
+
+progress::-webkit-progress-value {
+    background-color: #a6da95 !important;
+    border-radius: 8px !important;
+}
+
+progress::-webkit-progress-bar {
+    background-color: #181926;
+    border-radius: 8px;
+}
+
+.export-report {
+    text-align: center;
+}
+
+b {
+    color: #a6da95;
+}
+
+@media only screen and (max-width: 820px) {
     body {
         margin: 1rem;
     }
@@ -411,7 +456,7 @@ span.date {
         display: block;
     }
 
-    .actions {
+    span.actions {
         display: none;
     }
 
@@ -424,7 +469,7 @@ span.date {
         background: #363a4f;
     }
 
-    .mobile { 
+    .mobile {
         display: flex;
     }
 

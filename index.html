@@ -36,7 +36,8 @@
 
     <div class="card mobile">
         <span>📖</span>
-        <p>You can <b>press long on a channel</b> to read your messages and get more context. <br><i>It may not work on some devices, refresh the page or give up</i></p>
+        <p>You can <b>press long on a channel</b> to read your messages and get more context. <br><i>It may not work on
+                some devices, refresh the page or give up</i></p>
     </div>
 
     <div class="card">
@@ -54,7 +55,7 @@
     </div>
 
     <div class="card">
-        <span>🇵🇸</span>
+        <span><img src="pal_flag.svg" alt="PS"></span>
         <p>Free Palestine !</p>
     </div>
 
@@ -69,25 +70,37 @@
         <section class="tips">
             <input type="checkbox" id="tip-none" disabled>
             <label>No channel selected</label>
-            <input type="checkbox" checked="false" class="partial" id="tip-partial" disabled>
+            <input type="checkbox" indeterminate id="tip-partial" disabled>
             <label>Some channels selected</label>
             <input type="checkbox" checked id="tip-full" disabled>
             <label>All channels selected</label>
         </section>
 
         <details class="root">
-            <summary>Servers</summary>
+            <summary>
+                <input type="checkbox" name="select-servers" id="select-servers">
+                <label for="select-servers" title="Select All"></label>
+                Servers
+            </summary>
 
             <ul class="channels"></ul>
         </details>
 
         <details class="root">
-            <summary>Group Chats</summary>
+            <summary>
+                <input type="checkbox" name="select-groups" id="select-groups">
+                <label for="select-groups" title="Select All"></label>
+                Group Chats
+            </summary>
             <ul class="group-chats"></ul>
         </details>
 
         <details class="root">
-            <summary>Direct Messages</summary>
+            <summary>
+                <input type="checkbox" name="select-messages" id="select-messages">
+                <label for="select-messages" title="Select All"></label>
+                Direct Messages
+            </summary>
             <ul class="direct-messages"></ul>
         </details>
 
@@ -97,11 +110,17 @@
     <section class="export hidden">
         <!-- <input type="checkbox" name="export-channels" id="export-channels">
         <label for="export-channels">Only export channels</label> -->
-        <button id="export-button">Export</button>
-        <button id="download-button">Download</button>
-    </section>
+        <div class="actions">
+            <button id="export-button">Export</button>
+            <!-- <button id="download-button" disabled>Download</button> -->
+        </div>
 
-    <textarea readonly rows="32" class="hidden"></textarea>
+        <progress></progress>
+
+        <p class="export-report"></p>
+
+        <textarea readonly rows="32" class="hidden"></textarea>
+    </section>
 
     <dialog class="messages-popup">
         <h3>__channelName__ messages (__length__)</h3>

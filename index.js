@@ -20,10 +20,19 @@ const channelsContainer = _get('.channels');
 const directMessagesContainer = _get('.direct-messages');
 const groupChatsContainer = _get('.group-chats');
 
+let exportContent;
+
 _get('#export-button').addEventListener('click', exportChannelsAndMessages);
 
 _get('.close').addEventListener('click', () => _get('dialog.messages-popup').close());
 _get('dialog.messages-popup').addEventListener('close', closeModal);
+_get('#select-servers').checked = false;
+_get('#select-groups').checked = false;
+_get('#select-messages').checked = false;
+_get('#select-servers').addEventListener('change', selectAllServers);
+_get('#select-groups').addEventListener('change', selectAllGroupChats);
+_get('#select-messages').addEventListener('change', selectAllDirectMessages);
+// _get('#download-button').addEventListener('click', downloadExport);
 
 addEventListener('popstate', event => {
     const modal = _get('dialog.messages-popup');
@@ -133,7 +142,7 @@ function populateChannelsList(channels) {
         const selectAllDiv = _new('.select-all', { parent: summary, parentPosition: 'afterbegin' });
         _new('input', {
             parent: selectAllDiv, attr: { type: 'checkbox', id: group.id }, events: {
-                click: e => {
+                change: e => {
                     if (e.target.checked)
                         selectAllChannelsOfGroup(group);
                     else
@@ -151,6 +160,48 @@ function populateChannelsList(channels) {
     });
 }
 
+function selectAllServers(event) {
+    const servers = _getAll('.channels .select-all > input');
+    if (event.target.checked)
+        servers.forEach(server => {
+            server.checked = true;
+            server.dispatchEvent(new Event('change'));
+        });
+    else
+        servers.forEach(server => {
+            server.checked = false;
+            server.dispatchEvent(new Event('change'));
+        });
+}
+
+function selectAllGroupChats(event) {
+    const groups = _getAll('.group-chats > li > input');
+    if (event.target.checked)
+        groups.forEach(server => {
+            server.checked = true;
+            server.dispatchEvent(new Event('change'));
+        });
+    else
+        groups.forEach(server => {
+            server.checked = false;
+            server.dispatchEvent(new Event('change'));
+        });
+}
+
+function selectAllDirectMessages(event) {
+    const groups = _getAll('.direct-messages > li > input');
+    if (event.target.checked)
+        groups.forEach(server => {
+            server.checked = true;
+            server.dispatchEvent(new Event('change'));
+        });
+    else
+        groups.forEach(server => {
+            server.checked = false;
+            server.dispatchEvent(new Event('change'));
+        });
+}
+
 /**
  * @param {string} channelId 
  */
@@ -158,7 +209,7 @@ function addChannelToDelete(channelId) {
     channelsToDelete.add(channelId);
 
     _get('section.export').classList.remove('hidden');
-    _get('section.export + textarea').classList.remove('hidden');
+    _get('textarea').classList.remove('hidden');
 }
 
 /**
@@ -169,7 +220,7 @@ function removeChannelToDelete(channelId) {
 
     if (channelsToDelete.length === 0) {
         _get('section.export').classList.add('hidden');
-        _get('section.export + textarea').classList.remove('hidden');
+        _get('textarea').classList.remove('hidden');
     }
 }
 
@@ -205,15 +256,36 @@ function updateGroupCheckbox(group) {
 
     if (checkedChannels.length == 0) {
         groupCheckbox.checked = false;
-        groupCheckbox.classList.remove('partial');
+        groupCheckbox.indeterminate = false;
     }
     else if (checkedChannels.length == group.channels.length) {
         groupCheckbox.checked = true;
-        groupCheckbox.classList.remove('partial');
+        groupCheckbox.indeterminate = false;
     }
     else {
         groupCheckbox.checked = false;
-        groupCheckbox.classList.add('partial');
+        groupCheckbox.indeterminate = true;
+    }
+
+    updateGlobalCheckbox('#select-servers', '.channels .select-all > input');
+}
+
+function updateGlobalCheckbox(globalSelector, listSelector) {
+    const globalCheckbox = _get(globalSelector);
+    const groups = _getAll(`${listSelector}`);
+    const checkedgroups = _getAll(`${listSelector}:checked`);
+
+    if (checkedgroups.length == 0) {
+        globalCheckbox.checked = false;
+        globalCheckbox.indeterminate = false;
+    }
+    else if (checkedgroups.length == groups.length) {
+        globalCheckbox.checked = true;
+        globalCheckbox.indeterminate = false;
+    }
+    else {
+        globalCheckbox.checked = false;
+        globalCheckbox.indeterminate = true;
     }
 }
 
@@ -228,7 +300,6 @@ function addChannelCheckbox(channel, parent, group = null) {
         parent: parent, events: {
             'contextmenu': event => {
                 event.preventDefault();
-                console.log(event);
                 let target = event.target;
 
                 if (target.nodeName === "LABEL")
@@ -256,6 +327,10 @@ function addChannelCheckbox(channel, parent, group = null) {
 
                     if (group)
                         updateGroupCheckbox(group);
+                    else {
+                        updateGlobalCheckbox('#select-groups', '.group-chats > li > input');
+                        updateGlobalCheckbox('#select-messages', '.direct-messages > li > input');
+                    }
                 }
             }
         }
@@ -290,23 +365,46 @@ function addChannelCheckbox(channel, parent, group = null) {
 async function exportChannelsAndMessages() {
     // const onlyExportChannels = _get('#export-channels').checked;
     const channels = Array.from(channelsToDelete);
+    const progress = _get('progress');
+    const textArea = _get('textarea');
 
-    _get('textarea').textContent = '';
-    _get('#download-button').addEventListener('click', downloadExport);
+    textArea.textContent = '';
+    // _get('#download-button').disabled = true;
+    _get('#export-button').disabled = true;
+    _get('#export-button').textContent = 'Exporting...';
+    _get('.export-report').innerHTML = '';
+    progress.max = channels.length;
+    progress.value = 0;
 
     // if (onlyExportChannels) {
-    //     _get('textarea').textContent = channels.map(channel => channel.slice(1)).join(', ');
+    //     textArea.textContent = channels.map(channel => channel.slice(1)).join(', ');
     //     return;
     // }
 
+    let lineCount = 0;
+
     for (let channel of channels) {
-        for (let message of (await getChannelMessagesIds(channel)))
-            _get('textarea').textContent += `${channel.slice(1)},${message}\n`;
+        for (let message of await getChannelMessagesIds(channel)) {
+            exportContent += `${channel.slice(1)},${message}\n`;
+            if (lineCount < 200)
+                textArea.textContent += `${channel.slice(1)},${message}\n`;
+            else if (lineCount == 200)
+                textArea.textContent += `... (truncated for performance)`;
+            lineCount++;
+        }
+        progress.value++;
     }
+
+    _get('.export-report').innerHTML = `Exported <b>${lineCount.toLocaleString('fr')} messages</b> from <b>${channels.length.toLocaleString('fr')} channels</b>`;
+    _get('#export-button').textContent = 'Export';
+    _get('#export-button').disabled = false;
+    // _get('#download-button').disabled = false;
+
+    downloadExport();
 }
 
 function downloadExport() {
-    const textFile = new File([_get('textarea').textContent], 'undiscord.csv', {
+    const textFile = new File([exportContent], 'messages.csv', {
         type: 'text/csv'
     });
 
@@ -332,7 +430,7 @@ function downloadExport() {
  * @returns { int[] }
  */
 async function getChannelMessagesIds(channel) {
-    console.log(`messages/${channel}/messages.json`);
+    // console.log(`messages/${channel}/messages.json`);
     const channelMessagesFile = archiveRoot.find(file => file.filename === `messages/${channel}/messages.json`);
     let messagesList = JSON.parse(await channelMessagesFile.getData(new zip.TextWriter()));
     return messagesList.map(message => message['ID'].toString());
@@ -347,7 +445,7 @@ async function getChannelMessages(channel) {
     const channelMessagesFile = archiveRoot.find(file => file.filename === `messages/${channel}/messages.json`);
     const channelMessagesJSON = await channelMessagesFile.getData(new zip.TextWriter(), {
         onprogress: (progress, total) => {
-            console.log(`${progress}/${total} (${progress / total * 100}/100)`);
+            // console.log(`${progress}/${total} (${progress / total * 100}/100)`);
         }
     }).catch(err => console.trace('channelMessagesJSON', err));
     const parsedChannelMessages = JSON.parse(channelMessagesJSON);
@@ -380,14 +478,12 @@ function loadMessagesFromChannel(channel) {
             populateMessagesList(messages);
         })
         .catch(async error => {
-            console.log(archiveRoot);
             console.error(error);
             console.error('failed message fetch, no more tries.');
             const loadMessage = _get('dialog.messages-popup > p');
             loadMessage.classList.remove('hidden');
             loadMessage.classList.add('error');
             loadMessage.textContent = "Cannot load messages, try again.";
-            console.log(archiveRoot);
         });
 }
 
