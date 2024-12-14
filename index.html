@@ -4,14 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Undiscord Package Util</title>
+    <title>Discord Package Util</title>
     <link rel="stylesheet" href="style.css">
     <script src="zip.min.js"></script>
     <script async defer src="https://buttons.github.io/buttons.js"></script>
 </head>
 
 <body>
-    <h1>Undiscord Package Util</h1>
+    <h1>Discord Package Util</h1>
 
     <p>A simple tool to parse through your archive and export only the selected channels / groups / private messages.
         May be useful for people who want to make data deletion requests to Discord's support team.</p>
@@ -81,9 +81,20 @@
                 <input type="checkbox" name="select-servers" id="select-servers">
                 <label for="select-servers" title="Select All"></label>
                 Servers
+                <div class="search">
+                    <input type="text" id="search-servers" placeholder="search servers">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="lucide lucide-search">
+                        <circle cx="11" cy="11" r="8" />
+                        <path d="m21 21-4.3-4.3" />
+                    </svg>
+                </div>
             </summary>
 
-            <ul class="channels"></ul>
+            <ul class="channels">
+                <li class="hidden nothing-found">No channel found.</li>
+            </ul>
         </details>
 
         <details class="root">
@@ -91,8 +102,19 @@
                 <input type="checkbox" name="select-groups" id="select-groups">
                 <label for="select-groups" title="Select All"></label>
                 Group Chats
+                <div class="search">
+                    <input type="text" id="search-groups" placeholder="search groups...">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="lucide lucide-search">
+                        <circle cx="11" cy="11" r="8" />
+                        <path d="m21 21-4.3-4.3" />
+                    </svg>
+                </div>
             </summary>
-            <ul class="group-chats"></ul>
+            <ul class="group-chats">
+                <li class="hidden nothing-found">No channel found.</li>
+            </ul>
         </details>
 
         <details class="root">
@@ -100,8 +122,19 @@
                 <input type="checkbox" name="select-messages" id="select-messages">
                 <label for="select-messages" title="Select All"></label>
                 Direct Messages
+                <div class="search">
+                    <input type="text" id="search-messages" placeholder="search DMs...">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="lucide lucide-search">
+                        <circle cx="11" cy="11" r="8" />
+                        <path d="m21 21-4.3-4.3" />
+                    </svg>
+                </div>
             </summary>
-            <ul class="direct-messages"></ul>
+            <ul class="direct-messages">
+                <li class="hidden nothing-found">No channel found.</li>
+            </ul>
         </details>
 
         <hr>
@@ -115,7 +148,7 @@
             <!-- <button id="download-button" disabled>Download</button> -->
         </div>
 
-        <progress></progress>
+        <progress value="0" max="10"></progress>
 
         <p class="export-report"></p>
 

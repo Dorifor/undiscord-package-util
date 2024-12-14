@@ -49,7 +49,7 @@ export function _new(tagString, options = defaultOptions, text = null) {
     element.textContent = text;
 
     if (options.parent) {
-        if (typeof(options.parent) == "string")
+        if (typeof (options.parent) == "string")
             options.parent = _get(options.parent);
 
         if (options.parentPosition)
@@ -104,37 +104,53 @@ export function _getAll(querySelector) {
  * @param {boolean} lock Whether to lock or unlock the body scroll. Default = true.
  */
 export function lockBodyScroll(lock = true) {
-	const { documentElement, body } = document;
+    const { documentElement, body } = document;
 
-	// RTL <body> scrollbar
-	const documentLeft = documentElement.getBoundingClientRect().left;
-	const scrollbarX   = Math.round(documentLeft) + documentElement.scrollLeft;
-	const paddingProp  = scrollbarX ? 'paddingLeft' : 'paddingRight';
+    // RTL <body> scrollbar
+    const documentLeft = documentElement.getBoundingClientRect().left;
+    const scrollbarX = Math.round(documentLeft) + documentElement.scrollLeft;
+    const paddingProp = scrollbarX ? 'paddingLeft' : 'paddingRight';
 
-	if (lock) {
-		body.style[paddingProp] = `${window.innerWidth - documentElement.clientWidth}px`;
-		body.style.top          = `-${window.scrollY}px`;
-		body.style.left         = `-${window.scrollX}px`;
-		body.style.right        = 0;
-		body.style.position     = 'fixed';
+    if (lock) {
+        body.style[paddingProp] = `${window.innerWidth - documentElement.clientWidth}px`;
+        body.style.top = `-${window.scrollY}px`;
+        body.style.left = `-${window.scrollX}px`;
+        body.style.right = 0;
+        body.style.position = 'fixed';
 
-		body.classList.add('scroll-locked');
-	} else {
-		if ( ! body.classList.contains('scroll-locked') ) {
-			return;
-		}
+        body.classList.add('scroll-locked');
+    } else {
+        if (!body.classList.contains('scroll-locked')) {
+            return;
+        }
 
-		const currentScrollY = parseInt(body.style.top || '0') * -1;
-		const currentScrollX = parseInt(body.style.left || '0') * -1;
+        const currentScrollY = parseInt(body.style.top || '0') * -1;
+        const currentScrollX = parseInt(body.style.left || '0') * -1;
 
-		body.style[paddingProp] = '';
-		body.style.position     = '';
-		body.style.top          = '';
-		body.style.left         = '';
-		body.style.right        = '';
+        body.style[paddingProp] = '';
+        body.style.position = '';
+        body.style.top = '';
+        body.style.left = '';
+        body.style.right = '';
 
-		body.classList.remove('scroll-locked');
+        body.classList.remove('scroll-locked');
 
-		window.scrollTo({ left: currentScrollX, top: currentScrollY, behavior: 'instant' });
-	}
+        window.scrollTo({ left: currentScrollX, top: currentScrollY, behavior: 'instant' });
+    }
+}
+
+export function debounce(callback, delay = 350) {
+    var timer;
+    return function () {
+        var args = arguments;
+        var context = this;
+        clearTimeout(timer);
+        timer = setTimeout(function () {
+            callback.apply(context, args);
+        }, delay)
+    }
+}
+
+export function removeAccents(string) {
+    return string.normalize("NFD").replace(/\p{Diacritic}/gu, "");
 }

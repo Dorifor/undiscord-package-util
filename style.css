@@ -42,9 +42,7 @@ input[type="checkbox"]:checked+label::before {
 input[type="checkbox"]:indeterminate+label::before,
 input[type="checkbox"][indeterminate]+label::before {
     border: 2px solid #82ab75;
-    background-size: .1rem;
-    background-repeat: no-repeat;
-    background: radial-gradient(#a6da95 0, #a6da95 20%, transparent 20%);
+    background: radial-gradient(circle at center, #a6da95 0, #a6da95 20%, transparent 30%);
 }
 
 label.file-input {

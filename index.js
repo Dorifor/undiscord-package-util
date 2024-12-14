@@ -13,7 +13,7 @@
  * @property { Array.<Channel> } channels - Channels inside this group
  */
 
-import { _new, _get, _getAll, lockBodyScroll } from './utils.js';
+import { _new, _get, _getAll, lockBodyScroll, debounce, removeAccents } from './utils.js';
 
 const fileInput = _get('#package-file');
 const channelsContainer = _get('.channels');
@@ -32,6 +32,15 @@ _get('#select-messages').checked = false;
 _get('#select-servers').addEventListener('change', selectAllServers);
 _get('#select-groups').addEventListener('change', selectAllGroupChats);
 _get('#select-messages').addEventListener('change', selectAllDirectMessages);
+
+_get('#search-servers').value = "";
+_get('#search-servers').addEventListener('input', debounce(searchServers));
+
+_get('#search-groups').value = "";
+_get('#search-groups').addEventListener('input', debounce(searchGroups));
+
+_get('#search-messages').value = "";
+_get('#search-messages').addEventListener('input', debounce(searchMessages));
 // _get('#download-button').addEventListener('click', downloadExport);
 
 addEventListener('popstate', event => {
@@ -50,7 +59,12 @@ let archiveRoot;
 /** @type { Set.<string> } */
 const channelsToDelete = new Set();
 
+let serverListItems = new Array;
+let groupChatsListItems = new Array;
+let directMessagesListItems = new Array;
+
 async function onFilePicked() {
+    resetChannels();
     let channelsList;
 
     try {
@@ -124,20 +138,24 @@ function populateChannelsList(channels) {
 
     groupedChannels.forEach(group => {
         if (isGroupChat(group)) {
-            addChannelCheckbox(group.channels[0], groupChatsContainer);
+            const newListItem = addChannelCheckbox(group.channels[0], groupChatsContainer);
+            groupChatsListItems.push(newListItem);
             return;
         }
 
         group.channels.sort((a, b) => a.name.localeCompare(b.name));
 
         if (group.name == 'Direct Messages') {
-            for (let channel of group.channels)
-                addChannelCheckbox(channel, directMessagesContainer);
+            for (let channel of group.channels) {
+                const newListItem = addChannelCheckbox(channel, directMessagesContainer);
+                directMessagesListItems.push(newListItem);
+            }
             return;
         }
 
         const details = _new('details', { parent: channelsContainer });
-        const summary = _new('summary', { parent: details }, `${group.name} (${group.channels.length})`);
+        const summary = _new('summary', { parent: details });
+        _new('span', { parent: summary }, `${group.name} (${group.channels.length})`);
 
         const selectAllDiv = _new('.select-all', { parent: summary, parentPosition: 'afterbegin' });
         _new('input', {
@@ -155,7 +173,8 @@ function populateChannelsList(channels) {
         const list = _new('ul', { parent: details });
 
         group.channels.forEach(channel => {
-            addChannelCheckbox(channel, list, group);
+            const newListItem = addChannelCheckbox(channel, list, group);
+            serverListItems.push(newListItem);
         });
     });
 }
@@ -294,6 +313,7 @@ function updateGlobalCheckbox(globalSelector, listSelector) {
  * @param { Channel } channel 
  * @param { HTMLElement } parent 
  * @param { Group } group
+ * @returns { HTMLLIElement } listItem
  */
 function addChannelCheckbox(channel, parent, group = null) {
     const newListItem = _new('li', {
@@ -357,6 +377,7 @@ function addChannelCheckbox(channel, parent, group = null) {
     const readMessagesButton = _new('span.actions', { parent: newListItem, attr: { 'data-channel-id': channel.id }, events: { click: openMessageModal } });
     _new('span', { parent: readMessagesButton }, 'Messages');
     readMessagesButton.insertAdjacentHTML('afterbegin', '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-square-more"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 10h.01"/><path d="M12 10h.01"/><path d="M16 10h.01"/></svg>');
+    return newListItem;
 }
 
 /**
@@ -382,6 +403,8 @@ async function exportChannelsAndMessages() {
     // }
 
     let lineCount = 0;
+
+    exportContent = '';
 
     for (let channel of channels) {
         for (let message of await getChannelMessagesIds(channel)) {
@@ -532,4 +555,80 @@ function closeModal() {
     lockBodyScroll(false);
     _get('dialog.messages-popup > p').classList.remove('hidden');
     _get('dialog.messages-popup > ul')?.remove();
+}
+
+function searchGroups(event) {
+    const search = removeAccents(this.value.toLowerCase());
+    const list = _get('.group-chats');
+
+    groupChatsListItems.forEach(item => {
+        if (removeAccents(item.querySelector('label').textContent.toLowerCase()).includes(search))
+            item.classList.remove('excluded');
+        else
+            item.classList.add('excluded');
+    })
+
+    if (list.querySelectorAll('li:not(.excluded)').length > 1)
+        list.querySelector('.nothing-found').classList.add('hidden');
+    else
+        list.querySelector('.nothing-found').classList.remove('hidden');
+}
+
+function searchMessages(event) {
+    const search = removeAccents(this.value.toLowerCase());
+    const list = _get('.direct-messages')
+
+    directMessagesListItems.forEach(item => {
+        if (removeAccents(item.querySelector('label').textContent.toLowerCase()).includes(search))
+            item.classList.remove('excluded');
+        else
+            item.classList.add('excluded');
+    })
+
+    if (list.querySelectorAll('li:not(.excluded)').length > 1)
+        list.querySelector('.nothing-found').classList.add('hidden');
+    else
+        list.querySelector('.nothing-found').classList.remove('hidden');
+}
+
+function searchServers(event) {
+    const search = removeAccents(this.value.toLowerCase());
+
+    for (let item of serverListItems) {
+        if (removeAccents(item.querySelector('label').textContent.toLowerCase()).includes(search))
+            item.classList.remove('excluded');
+        else
+            item.classList.add('excluded');
+    }
+
+    for (let group of _getAll('.channels > details')) {
+        updateGroupAfterSearch(group);
+    }
+}
+
+/**
+ * @param {HTMLElement} groupItem 
+ */
+function updateGroupAfterSearch(groupItem) {
+    const foundChannels = groupItem.querySelectorAll('li:not(.excluded)')
+    console.log(foundChannels.length)
+    if (foundChannels.length == 0)
+        groupItem.classList.add('excluded');
+    else
+        groupItem.classList.remove('excluded');
+
+    const groupLabel = groupItem.querySelector('summary > span');
+    const countStart = groupLabel.textContent.lastIndexOf('(');
+    groupLabel.textContent = groupLabel.textContent.slice(0, countStart) + '(' + foundChannels.length + ')';
+}
+
+function resetChannels() {
+    const serverList = _getAll('.channels > li:not(.nothing-found)');
+    const groupChatsList = _getAll('.channels > li:not(.nothing-found)');
+    const directMessagesList = _getAll('.channels > li:not(.nothing-found)');
+
+    serverList.forEach(item => item.remove);
+    groupChatsList.forEach(item => item.remove);
+    directMessagesList.forEach(item => item.remove);
+    _get('.export').classList.add('hidden');
 }
