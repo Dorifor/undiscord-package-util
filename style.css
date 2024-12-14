@@ -526,4 +526,12 @@ input[type="text"]:focus-visible {
     .desktop {
         display: none;
     }
+
+    details.root > summary {
+        font-size: 1rem;
+    }
+
+    .root .search {
+        width: 38%;
+    }
 }
