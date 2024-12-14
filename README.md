@@ -1,4 +1,4 @@
-# Undiscord Package Util
+# Discord Package Util
 
 Easily export desired channel and messages IDs from your Discord personal data package from your browser. 
 
@@ -7,11 +7,13 @@ Easily export desired channel and messages IDs from your Discord personal data p
 ## 📰 You can use it without internet !
 
 ## 🤓 Features
-- Export message IDs along with their channel ID
-- Read messages from a channel
+- Export your data with correct format (.csv)
+- Filter through channel names
+- Read your messages
 
 ## 📷 Screenshots
 ![screenshot](screenshot.png)
 
 ## 🙏 Credits
 - [zip.js](https://gildas-lormeau.github.io/zip.js/) - A JavaScript library to zip and unzip files by [Gildas Lormeau](https://github.com/gildas-lormeau)
+- [catppuccin](https://catppuccin.com/) - 😸 Soothing pastel theme for the high-spirited! 
