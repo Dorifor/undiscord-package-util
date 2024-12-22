@@ -16,4 +16,5 @@ Easily export desired channel and messages IDs from your Discord personal data p
 
 ## 🙏 Credits
 - [zip.js](https://gildas-lormeau.github.io/zip.js/) - A JavaScript library to zip and unzip files by [Gildas Lormeau](https://github.com/gildas-lormeau)
-- [catppuccin](https://catppuccin.com/) - 😸 Soothing pastel theme for the high-spirited! 
+- [catppuccin](https://catppuccin.com/) - 😸 Soothing pastel theme for the high-spirited!
+- [json-with-bigint](https://github.com/Ivan-Korolenko/json-with-bigint) - Easily serialize and deserialize data with BigInt values 
