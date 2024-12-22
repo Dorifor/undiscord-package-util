@@ -14,6 +14,7 @@
  */
 
 import { _new, _get, _getAll, lockBodyScroll, debounce, removeAccents } from './utils.js';
+import { JSONParse } from './json-with-bigint.min.js';
 
 const fileInput = _get('#package-file');
 const channelsContainer = _get('.channels');
@@ -453,9 +454,8 @@ function downloadExport() {
  * @returns { int[] }
  */
 async function getChannelMessagesIds(channel) {
-    // console.log(`messages/${channel}/messages.json`);
     const channelMessagesFile = archiveRoot.find(file => file.filename === `messages/${channel}/messages.json`);
-    let messagesList = JSON.parse(await channelMessagesFile.getData(new zip.TextWriter()));
+    let messagesList = JSONParse(await channelMessagesFile.getData(new zip.TextWriter()));
     return messagesList.map(message => message['ID'].toString());
 }
 
