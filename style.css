@@ -481,6 +481,36 @@ input[type="text"]:focus-visible {
     color: #8087a2;
 }
 
+.filters fieldset {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    border-color: #363a4f;
+}
+
+.filters label {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+input[type="date"] {
+    background: #363a4f;
+    border: none;
+    border-radius: 4px;
+    padding: .5rem;
+    color: #cad3f5;
+}
+
+input[type="date"]:invalid {
+    color: #d20f39;
+}
+
+input.applied {
+    color: #a6da95;
+}
+
 @media only screen and (max-width: 820px) {
     body {
         margin: 1rem;

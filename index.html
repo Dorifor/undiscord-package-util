@@ -11,10 +11,9 @@
 </head>
 
 <body>
-    <h1>Discord Package Util</h1>
+    <h1>Discord Package Exporter</h1>
 
-    <p>A simple tool to parse through your archive and export only the selected channels / groups / private messages.
-        May be useful for people who want to make data deletion requests to Discord's support team.</p>
+    <p>Export selected channels / groups / private messages for data deletion requests.</p>
 
     <div class="card">
         <span>📌</span>
@@ -67,6 +66,13 @@
     <hr>
 
     <section class="package-channels hidden">
+        <section class="filters">
+            <fieldset>
+                <legend>Date filter</legend>
+                <label>Start:<input type="date" name="date-filter" id="date-filter-start"></label>
+                <label>End:<input type="date" name="date-filter" id="date-filter-end"></label>
+            </fieldset>
+        </section>
         <section class="tips">
             <input type="checkbox" id="tip-none" disabled>
             <label>No channel selected</label>

@@ -20,9 +20,13 @@ const fileInput = _get('#package-file');
 const channelsContainer = _get('.channels');
 const directMessagesContainer = _get('.direct-messages');
 const groupChatsContainer = _get('.group-chats');
+const dateFilterStart = _get("#date-filter-start");
+const dateFilterEnd = _get("#date-filter-end");
 
 let exportContent;
 
+dateFilterStart.addEventListener('change', _ => { onDateFilterChange(dateFilterStart) });
+dateFilterEnd.addEventListener('change', _ => { onDateFilterChange(dateFilterEnd) });
 _get('#export-button').addEventListener('click', exportChannelsAndMessages);
 
 _get('.close').addEventListener('click', () => _get('dialog.messages-popup').close());
@@ -63,6 +67,8 @@ const channelsToDelete = new Set();
 let serverListItems = new Array;
 let groupChatsListItems = new Array;
 let directMessagesListItems = new Array;
+let dateFilterStartDate;
+let dateFilterEndDate;
 
 async function onFilePicked() {
     resetChannels();
@@ -114,6 +120,17 @@ function showFilePickerFeedback(isSuccess) {
     fileInputLabel.classList.remove('error');
     fileInputLabel.classList.add('loaded');
     fileInputLabel.querySelector('span').textContent = "Archive Loaded";
+}
+
+/**
+ * 
+ * @param {HTMLInputElement} input 
+ */
+function onDateFilterChange(input) {
+    if (input.value != '' && input.checkValidity())
+        input.classList.add('applied');
+    else
+        input.classList.remove('applied');
 }
 
 /**
@@ -407,6 +424,11 @@ async function exportChannelsAndMessages() {
 
     exportContent = '';
 
+    if (dateFilterStart.value != "")
+        dateFilterStartDate = new Date(dateFilterStart.value)
+    if (dateFilterEnd.value != "")
+        dateFilterEndDate = new Date(dateFilterEnd.value)
+
     for (let channel of channels) {
         for (let message of await getChannelMessagesIds(channel)) {
             exportContent += `${channel.slice(1)},${message}\n`;
@@ -423,6 +445,9 @@ async function exportChannelsAndMessages() {
     _get('#export-button').textContent = 'Export';
     _get('#export-button').disabled = false;
     // _get('#download-button').disabled = false;
+
+    dateFilterStartDate = null
+    dateFilterEndDate = null
 
     downloadExport();
 }
@@ -456,6 +481,22 @@ function downloadExport() {
 async function getChannelMessagesIds(channel) {
     const channelMessagesFile = archiveRoot.find(file => file.filename === `messages/${channel}/messages.json`);
     let messagesList = JSONParse(await channelMessagesFile.getData(new zip.TextWriter()));
+    if (dateFilterStartDate != null || dateFilterEndDate != null) {
+        messagesList = messagesList.filter(message => {
+            const timestamp = new Date(message['Timestamp']);
+
+            let isAfterStart = true;
+            let isBeforeEnd = true;
+
+            if (dateFilterStartDate != null)
+                isAfterStart = timestamp > dateFilterStartDate;
+
+            if (dateFilterEndDate != null)
+                isBeforeEnd = timestamp < dateFilterEndDate;
+
+            return isAfterStart && isBeforeEnd;
+        });
+    }
     return messagesList.map(message => message['ID'].toString());
 }
 
