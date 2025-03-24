@@ -1,4 +1,4 @@
-# Discord Package Util
+# Discord Package Exporter
 
 Easily export desired channel and messages IDs from your Discord personal data package from your browser. 
 
