@@ -14,7 +14,7 @@
  */
 
 import { _new, _get, _getAll, lockBodyScroll, debounce, removeAccents } from './utils.js';
-import { JSONParse } from './json-with-bigint.min.js';
+import { JSONParse } from './json-with-bigint.js';
 
 const fileInput = _get('#package-file');
 const channelsContainer = _get('.channels');
