@@ -238,6 +238,14 @@ section.hidden {
     margin: 1rem 0;
 }
 
+.card.warning {
+    border: 2px solid #f5a97f;
+}
+
+.card.warning b {
+    color: #f5a97f;
+}
+
 .card>span {
     min-width: 22px;
     width: 22px;
