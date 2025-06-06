@@ -519,9 +519,15 @@ input.applied {
     color: #a6da95;
 }
 
-@media only screen and (max-width: 820px) {
+@media only screen and (max-width: 1400px) {
     body {
-        margin: 1rem;
+        margin: 0 20%;
+    }
+}
+
+@media only screen and (max-width: 1000px) {
+    body {
+        margin: 0 1rem;
     }
 
     .tips {
@@ -544,10 +550,6 @@ input.applied {
         display: block;
     }
 
-    span.actions {
-        display: none;
-    }
-
     ul:not(.channels)>li {
         padding: .5rem .2rem;
     }
@@ -557,6 +559,16 @@ input.applied {
         background: #363a4f;
     }
 
+    details.root > summary {
+        font-size: 1rem;
+    }
+
+    .root .search {
+        width: 38%;
+    }
+}
+
+@media (hover: none) {
     .mobile {
         display: flex;
     }
@@ -565,11 +577,7 @@ input.applied {
         display: none;
     }
 
-    details.root > summary {
-        font-size: 1rem;
-    }
-
-    .root .search {
-        width: 38%;
+    span.actions {
+        display: none;
     }
 }

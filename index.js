@@ -70,6 +70,10 @@ let directMessagesListItems = new Array;
 let dateFilterStartDate;
 let dateFilterEndDate;
 
+let isSelectAllDMsPartial;
+let isSelectAllGroupsPartial;
+let isSelectAllServersPartial;
+
 async function onFilePicked() {
     resetChannels();
     let channelsList;
@@ -198,45 +202,48 @@ function populateChannelsList(channels) {
 }
 
 function selectAllServers(event) {
-    const servers = _getAll('.channels .select-all > input');
-    if (event.target.checked)
-        servers.forEach(server => {
-            server.checked = true;
-            server.dispatchEvent(new Event('change'));
-        });
-    else
-        servers.forEach(server => {
-            server.checked = false;
-            server.dispatchEvent(new Event('change'));
-        });
+    if (isSelectAllServersPartial && event.target.checked)
+        event.target.checked = false;
+
+    const servers = _getAll('.channels li:not(.excluded) > input');
+    const checked = event.target.checked;
+
+    for (const server of servers) {
+        server.checked = checked;
+        server.dispatchEvent(new Event('change'));
+    }
+
+    isSelectAllServersPartial = event.target.indeterminate;
 }
 
 function selectAllGroupChats(event) {
-    const groups = _getAll('.group-chats > li > input');
-    if (event.target.checked)
-        groups.forEach(server => {
-            server.checked = true;
-            server.dispatchEvent(new Event('change'));
-        });
-    else
-        groups.forEach(server => {
-            server.checked = false;
-            server.dispatchEvent(new Event('change'));
-        });
+    if (isSelectAllGroupsPartial && event.target.checked)
+        event.target.checked = false;
+
+    const groups = _getAll('.group-chats > li:not(.excluded) > input');
+    const checked = event.target.checked;
+
+    for (const group of groups) {
+        group.checked = checked;
+        group.dispatchEvent(new Event('change'));
+    }
+
+    isSelectAllGroupsPartial = event.target.indeterminate;
 }
 
-function selectAllDirectMessages(event) {
-    const groups = _getAll('.direct-messages > li > input');
-    if (event.target.checked)
-        groups.forEach(server => {
-            server.checked = true;
-            server.dispatchEvent(new Event('change'));
-        });
-    else
-        groups.forEach(server => {
-            server.checked = false;
-            server.dispatchEvent(new Event('change'));
-        });
+async function selectAllDirectMessages(event) {
+    if (isSelectAllDMsPartial && event.target.checked)
+        event.target.checked = false;
+
+    const directMessages = _getAll('.direct-messages > li:not(.excluded) > input');
+    const checked = event.target.checked;
+
+    for (const dm of directMessages) {
+        dm.checked = checked;
+        dm.dispatchEvent(new Event('change'));
+    }
+
+    isSelectAllDMsPartial = event.target.indeterminate;
 }
 
 /**
@@ -313,14 +320,17 @@ function updateGlobalCheckbox(globalSelector, listSelector) {
     const checkedgroups = _getAll(`${listSelector}:checked`);
 
     if (checkedgroups.length == 0) {
+        // console.log('unchecked');
         globalCheckbox.checked = false;
         globalCheckbox.indeterminate = false;
     }
     else if (checkedgroups.length == groups.length) {
+        // console.log('checked');
         globalCheckbox.checked = true;
         globalCheckbox.indeterminate = false;
     }
     else {
+        // console.log('partial');
         globalCheckbox.checked = false;
         globalCheckbox.indeterminate = true;
     }
@@ -366,6 +376,7 @@ function addChannelCheckbox(channel, parent, group = null) {
                     if (group)
                         updateGroupCheckbox(group);
                     else {
+                        console.log('changed: ', channel.id);
                         updateGlobalCheckbox('#select-groups', '.group-chats > li > input');
                         updateGlobalCheckbox('#select-messages', '.direct-messages > li > input');
                     }
@@ -652,7 +663,6 @@ function searchServers(event) {
  */
 function updateGroupAfterSearch(groupItem) {
     const foundChannels = groupItem.querySelectorAll('li:not(.excluded)')
-    console.log(foundChannels.length)
     if (foundChannels.length == 0)
         groupItem.classList.add('excluded');
     else
