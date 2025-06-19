@@ -74,6 +74,8 @@ let isSelectAllDMsPartial;
 let isSelectAllGroupsPartial;
 let isSelectAllServersPartial;
 
+let isArchiveNewFormat = false;
+
 async function onFilePicked() {
     resetChannels();
     let channelsList;
@@ -102,7 +104,12 @@ async function getChannelsListFromArchive() {
     const reader = new zip.ZipReader(new zip.BlobReader(file));
     archiveRoot = await reader.getEntries();
     reader.close();
-    const channelsListFile = archiveRoot.find(file => file.filename === 'messages/index.json');
+    let channelsListFile = archiveRoot.find(file => file.filename === 'messages/index.json');
+    isArchiveNewFormat = channelsListFile == undefined;
+
+    if (isArchiveNewFormat)
+        channelsListFile = archiveRoot.find(file => file.filename === 'Messages/index.json');
+
     let channelsList = JSON.parse(await channelsListFile.getData(new zip.TextWriter()));
     return Object.entries(channelsList).map(channel => { return { id: 'c' + channel[0], name: channel[1] } });
 }
@@ -490,7 +497,9 @@ function downloadExport() {
  * @returns { int[] }
  */
 async function getChannelMessagesIds(channel) {
-    const channelMessagesFile = archiveRoot.find(file => file.filename === `messages/${channel}/messages.json`);
+    const messagesDir = isArchiveNewFormat ? 'Messages' : 'messages';
+
+    const channelMessagesFile = archiveRoot.find(file => file.filename === `${messagesDir}/${channel}/messages.json`);
     let messagesList = JSONParse(await channelMessagesFile.getData(new zip.TextWriter()));
     if (dateFilterStartDate != null || dateFilterEndDate != null) {
         messagesList = messagesList.filter(message => {
@@ -517,7 +526,8 @@ async function getChannelMessagesIds(channel) {
  * @returns { Array.<{ ID: int, Timestamp: string, Contents: string, Attachments: string }> }
  */
 async function getChannelMessages(channel) {
-    const channelMessagesFile = archiveRoot.find(file => file.filename === `messages/${channel}/messages.json`);
+    const messagesDir = isArchiveNewFormat ? 'Messages' : 'messages';
+    const channelMessagesFile = archiveRoot.find(file => file.filename === `${messagesDir}/${channel}/messages.json`);
     const channelMessagesJSON = await channelMessagesFile.getData(new zip.TextWriter(), {
         onprogress: (progress, total) => {
             // console.log(`${progress}/${total} (${progress / total * 100}/100)`);
