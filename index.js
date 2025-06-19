@@ -383,7 +383,6 @@ function addChannelCheckbox(channel, parent, group = null) {
                     if (group)
                         updateGroupCheckbox(group);
                     else {
-                        console.log('changed: ', channel.id);
                         updateGlobalCheckbox('#select-groups', '.group-chats > li > input');
                         updateGlobalCheckbox('#select-messages', '.direct-messages > li > input');
                     }
